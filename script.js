@@ -1,75 +1,198 @@
-async function loadProductList() {
-  const response = await fetch("products.json");
-  const productList = await response.json();
+const productGrid = document.querySelector("#product-grid");
+const productModal = document.querySelector("#product-modal");
+const closeProductModalButton =
+  document.querySelector("#close-product-modal");
 
-  const firstProductFolder = productList[0].folder;
-  const encodedFolder = encodeURIComponent(firstProductFolder);
+const mainProductImage =
+  document.querySelector("#main-product-image");
+const thumbnailList =
+  document.querySelector("#thumbnail-list");
 
-  const productResponse = await fetch(
-    `items/${encodedFolder}/info.json`
+let activeProduct = null;
+let activeImageIndex = 0;
+
+/**
+ * Vytvoří cestu ke složce produktu.
+ */
+function getProductFolderPath(folder) {
+  return `items/${encodeURIComponent(folder)}`;
+}
+
+/**
+ * Vytvoří cesty k velkým fotografiím a náhledům.
+ */
+function createImagePaths(folder, imageCount) {
+  const folderPath = getProductFolderPath(folder);
+
+  const fullImages = Array.from(
+    { length: imageCount },
+    (_, index) => `${folderPath}/${index + 1}.jpg`
   );
 
-  const productInfo = await productResponse.json();
-
-  const productGrid = document.querySelector("#product-grid");
-  const productModal = document.querySelector("#product-modal");
-  const closeProductModalButton =
-    document.querySelector("#close-product-modal");
-
-  const mainProductImage = document.querySelector("#main-product-image");
-  const thumbnailList = document.querySelector("#thumbnail-list");
-
-  const fullImagePaths = Array.from(
-    { length: productInfo.images },
-    (_, index) => `items/${encodedFolder}/${index + 1}.jpg`
+  const thumbnails = Array.from(
+    { length: imageCount },
+    (_, index) => `${folderPath}/${index + 1}-thumb.jpg`
   );
 
-  const thumbnailImagePaths = Array.from(
-    { length: productInfo.images },
-    (_, index) => `items/${encodedFolder}/${index + 1}-thumb.jpg`
-  );
+  return {
+    fullImages,
+    thumbnails
+  };
+}
 
-  const productCard = document.createElement("button");
-  productCard.type = "button";
-  productCard.className = "product-card";
-  productCard.setAttribute(
-    "aria-label",
-    `Otevřít položku: ${productInfo.name}`
-  );
+/**
+ * Načte products.json a info.json všech produktů.
+ */
+async function loadProducts() {
+  try {
+    const productListResponse = await fetch("products.json");
 
-  const productImage = document.createElement("img");
-  productImage.src = thumbnailImagePaths[0];
-  productImage.alt = productInfo.name;
+    if (!productListResponse.ok) {
+      throw new Error("Nepodařilo se načíst products.json.");
+    }
 
-  // Pokud náhled neexistuje, použije se automaticky velká fotografie.
-  productImage.addEventListener(
-    "error",
-    () => {
-      productImage.src = fullImagePaths[0];
-    },
-    { once: true }
-  );
+    const productList = await productListResponse.json();
 
-  productCard.appendChild(productImage);
+    const products = await Promise.all(
+      productList.map(async ({ folder }) => {
+        const folderPath = getProductFolderPath(folder);
 
-  function showImage(index) {
-    mainProductImage.src = fullImagePaths[index];
-    mainProductImage.alt =
-      `${productInfo.name}, fotografie ${index + 1}`;
+        const productResponse = await fetch(
+          `${folderPath}/info.json`
+        );
 
-    const thumbnailButtons =
-      thumbnailList.querySelectorAll(".thumbnail-button");
+        if (!productResponse.ok) {
+          throw new Error(
+            `Nepodařilo se načíst info.json: ${folder}`
+          );
+        }
 
-    thumbnailButtons.forEach((button, buttonIndex) => {
-      button.classList.toggle("active", buttonIndex === index);
+        const productInfo = await productResponse.json();
+        const imagePaths = createImagePaths(
+          folder,
+          productInfo.images
+        );
+
+        return {
+          ...productInfo,
+          folder,
+          ...imagePaths
+        };
+      })
+    );
+
+    renderProductCards(products);
+  } catch (error) {
+    console.error(error);
+
+    productGrid.innerHTML =
+      "<p>Nepodařilo se načíst katalog.</p>";
+  }
+}
+
+/**
+ * Vykreslí kartu každého produktu.
+ */
+function renderProductCards(products) {
+  productGrid.innerHTML = "";
+
+  products.forEach((product) => {
+    const productCard = document.createElement("button");
+
+    productCard.type = "button";
+    productCard.className = "product-card";
+    productCard.setAttribute(
+      "aria-label",
+      `Otevřít položku: ${product.name}`
+    );
+
+    if (product.available === false) {
+      productCard.classList.add("is-unavailable");
+    }
+
+    const productImage = document.createElement("img");
+
+    productImage.src = product.thumbnails[0];
+    productImage.alt = product.name;
+    productImage.loading = "lazy";
+
+    // Pokud náhled neexistuje, načte se velká fotografie.
+    productImage.addEventListener(
+      "error",
+      () => {
+        productImage.src = product.fullImages[0];
+      },
+      { once: true }
+    );
+
+    productCard.appendChild(productImage);
+
+    if (product.available === false) {
+      const status = document.createElement("span");
+
+      status.className = "product-card-status";
+      status.textContent = "PRYČ";
+
+      productCard.appendChild(status);
+    }
+
+    productCard.addEventListener("click", () => {
+      openProductModal(product);
     });
+
+    productGrid.appendChild(productCard);
+  });
+}
+
+/**
+ * Otevře detail konkrétního produktu.
+ */
+function openProductModal(product) {
+  activeProduct = product;
+  activeImageIndex = 0;
+
+  document.querySelector("#product-name").textContent =
+    product.name;
+
+  document.querySelector("#product-size").textContent =
+    product.size;
+
+  document.querySelector("#product-brand").textContent =
+    product.brand;
+
+  document.querySelector("#product-description").textContent =
+    product.description;
+
+  const productPrice =
+    document.querySelector("#product-price");
+
+  if (product.available === false) {
+    productPrice.textContent = "PRYČ – PRODÁNO";
+    productPrice.classList.add("is-unavailable");
+  } else {
+    productPrice.textContent = `${product.price} CZK`;
+    productPrice.classList.remove("is-unavailable");
   }
 
-  function createThumbnails() {
-    thumbnailList.innerHTML = "";
+  createThumbnails();
+  showImage(0);
 
-    thumbnailImagePaths.forEach((thumbnailPath, index) => {
-      const thumbnailButton = document.createElement("button");
+  productModal.classList.add("is-open");
+  productModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+}
+
+/**
+ * Vytvoří miniatury právě otevřeného produktu.
+ */
+function createThumbnails() {
+  thumbnailList.innerHTML = "";
+
+  activeProduct.thumbnails.forEach(
+    (thumbnailPath, index) => {
+      const thumbnailButton =
+        document.createElement("button");
+
       thumbnailButton.type = "button";
       thumbnailButton.className = "thumbnail-button";
       thumbnailButton.setAttribute(
@@ -77,17 +200,20 @@ async function loadProductList() {
         `Zobrazit fotografii ${index + 1}`
       );
 
-      const thumbnailImage = document.createElement("img");
+      const thumbnailImage =
+        document.createElement("img");
+
       thumbnailImage.src = thumbnailPath;
       thumbnailImage.alt =
-        `${productInfo.name}, fotografie ${index + 1}`;
+        `${activeProduct.name}, fotografie ${index + 1}`;
       thumbnailImage.loading = "lazy";
 
-      // Pokud miniatura neexistuje, použije se velká fotografie.
+      // Pokud miniatura neexistuje, použije velkou fotografii.
       thumbnailImage.addEventListener(
         "error",
         () => {
-          thumbnailImage.src = fullImagePaths[index];
+          thumbnailImage.src =
+            activeProduct.fullImages[index];
         },
         { once: true }
       );
@@ -99,40 +225,48 @@ async function loadProductList() {
       });
 
       thumbnailList.appendChild(thumbnailButton);
-    });
-  }
-
-  productCard.addEventListener("click", () => {
-    document.querySelector("#product-name").textContent =
-      productInfo.name;
-
-    document.querySelector("#product-size").textContent =
-      productInfo.size;
-
-    document.querySelector("#product-brand").textContent =
-      productInfo.brand;
-
-    document.querySelector("#product-description").textContent =
-      productInfo.description;
-
-    document.querySelector("#product-price").textContent =
-      `${productInfo.price} CZK`;
-
-    createThumbnails();
-    showImage(0);
-
-    productModal.classList.add("is-open");
-    productModal.setAttribute("aria-hidden", "false");
-    document.body.classList.add("modal-open");
-  });
-
-  closeProductModalButton.addEventListener("click", () => {
-    productModal.classList.remove("is-open");
-    productModal.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("modal-open");
-  });
-
-  productGrid.appendChild(productCard);
+    }
+  );
 }
 
-loadProductList();
+/**
+ * Zobrazí vybranou fotografii.
+ */
+function showImage(index) {
+  activeImageIndex = index;
+
+  mainProductImage.src =
+    activeProduct.fullImages[index];
+
+  mainProductImage.alt =
+    `${activeProduct.name}, fotografie ${index + 1}`;
+
+  const thumbnailButtons =
+    thumbnailList.querySelectorAll(".thumbnail-button");
+
+  thumbnailButtons.forEach((button, buttonIndex) => {
+    button.classList.toggle(
+      "active",
+      buttonIndex === index
+    );
+  });
+}
+
+/**
+ * Zavře detail produktu.
+ */
+function closeProductModal() {
+  productModal.classList.remove("is-open");
+  productModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+
+  activeProduct = null;
+  activeImageIndex = 0;
+}
+
+closeProductModalButton.addEventListener(
+  "click",
+  closeProductModal
+);
+
+loadProducts();
