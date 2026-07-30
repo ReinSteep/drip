@@ -22,23 +22,43 @@
       <h1>DRIP – CHCEŠ?</h1>
 
       <nav class="category-menu" aria-label="Kategorie">
-        <button class="category-button active" data-category="all">
+        <button
+          class="category-button active"
+          data-category="all"
+          type="button"
+        >
           Vše
         </button>
 
-        <button class="category-button" data-category="trika">
+        <button
+          class="category-button"
+          data-category="trika"
+          type="button"
+        >
           Trika
         </button>
 
-        <button class="category-button" data-category="kosile">
+        <button
+          class="category-button"
+          data-category="kosile"
+          type="button"
+        >
           Košile
         </button>
 
-        <button class="category-button" data-category="mikiny">
+        <button
+          class="category-button"
+          data-category="mikiny"
+          type="button"
+        >
           Mikiny
         </button>
 
-        <button class="category-button" data-category="kalhoty">
+        <button
+          class="category-button"
+          data-category="kalhoty"
+          type="button"
+        >
           Kalhoty
         </button>
       </nav>
@@ -49,7 +69,7 @@
       id="product-grid"
       aria-label="Nabízené položky"
     >
-      <!-- Karty produktů sem později vloží JavaScript. -->
+      <!-- Karty produktů vloží JavaScript. -->
     </section>
   </main>
 
@@ -61,14 +81,13 @@
   >
     <div class="product-modal-panel">
       <button
-  class="close-button"
-  id="close-product-modal"
-  type="button"
-  aria-label="Zavřít detail"
->
-  ×
-</button>
-      </header>
+        class="close-button"
+        id="close-product-modal"
+        type="button"
+        aria-label="Zavřít detail"
+      >
+        ×
+      </button>
 
       <div class="product-detail">
         <div class="product-gallery">
@@ -111,7 +130,10 @@
             <p id="product-description"></p>
           </div>
 
-          <p class="product-price" id="product-price"></p>
+          <p
+            class="product-price"
+            id="product-price"
+          ></p>
         </div>
       </div>
     </div>
@@ -157,6 +179,6 @@
     </button>
   </section>
 
-  <script src="script.js?v=2"></script>
+  <script src="script.js?v=3"></script>
 </body>
 </html>
