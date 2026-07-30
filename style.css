@@ -205,8 +205,7 @@ button {
 
 .main-image-button {
   display: grid;
-  justify-items: center;
-  align-items: start;
+  place-items: center;
 
   width: 100%;
   flex: 1;
