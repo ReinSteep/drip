@@ -83,11 +83,14 @@ button {
 .product-card {
   position: relative;
   padding: 0;
-  overflow: hidden;
   border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+
   background: transparent;
   cursor: pointer;
   aspect-ratio: 4 / 5;
+
   transition:
     transform 220ms ease,
     border-color 220ms ease,
