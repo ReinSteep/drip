@@ -8,9 +8,25 @@ const mainProductImage =
 const thumbnailList =
   document.querySelector("#thumbnail-list");
 
+const categoryButtons =
+  document.querySelectorAll(".category-button");
+
+const openFullscreenImageButton =
+  document.querySelector("#open-fullscreen-image");
+const fullscreenImageViewer =
+  document.querySelector("#fullscreen-image-viewer");
+const fullscreenImage =
+  document.querySelector("#fullscreen-image");
+const closeFullscreenImageButton =
+  document.querySelector("#close-fullscreen-image");
+const previousFullscreenImageButton =
+  document.querySelector("#previous-fullscreen-image");
+const nextFullscreenImageButton =
+  document.querySelector("#next-fullscreen-image");
+
+let allProducts = [];
 let activeProduct = null;
 let activeImageIndex = 0;
-let allProducts = [];
 
 const preloadedProducts = new Set();
 
@@ -60,6 +76,16 @@ function preloadProductImages(product) {
 }
 
 /**
+ * Odstraní diakritiku a sjednotí zápis kategorie.
+ */
+function normalizeCategory(category) {
+  return category
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/**
  * Načte products.json a info.json všech produktů.
  */
 async function loadProducts() {
@@ -87,6 +113,7 @@ async function loadProducts() {
         }
 
         const productInfo = await productResponse.json();
+
         const imagePaths = createImagePaths(
           folder,
           productInfo.images
@@ -111,7 +138,7 @@ async function loadProducts() {
 }
 
 /**
- * Vykreslí kartu každého produktu.
+ * Vykreslí karty produktů.
  */
 function renderProductCards(products) {
   productGrid.innerHTML = "";
@@ -136,7 +163,7 @@ function renderProductCards(products) {
     productImage.alt = product.name;
     productImage.loading = "lazy";
 
-    // Pokud náhled neexistuje, načte se velká fotografie.
+    // Pokud náhled neexistuje, použije se velká fotografie.
     productImage.addEventListener(
       "error",
       () => {
@@ -156,7 +183,7 @@ function renderProductCards(products) {
       productCard.appendChild(status);
     }
 
-    // Velké fotografie se začnou načítat už při najetí na kartu.
+    // Velké fotografie se začnou načítat po najetí na kartu.
     productCard.addEventListener(
       "mouseenter",
       () => {
@@ -187,6 +214,8 @@ function renderProductCards(products) {
 function openProductModal(product) {
   activeProduct = product;
   activeImageIndex = 0;
+
+  // Odstraní fotografii předchozího produktu během načítání.
 
   preloadProductImages(product);
 
@@ -222,7 +251,7 @@ function openProductModal(product) {
 }
 
 /**
- * Vytvoří miniatury právě otevřeného produktu.
+ * Vytvoří miniatury otevřeného produktu.
  */
 function createThumbnails() {
   thumbnailList.innerHTML = "";
@@ -275,9 +304,13 @@ function createThumbnails() {
 }
 
 /**
- * Zobrazí vybranou fotografii.
+ * Zobrazí vybranou fotografii v detailu produktu.
  */
 function showImage(index) {
+  if (!activeProduct) {
+    return;
+  }
+
   activeImageIndex = index;
 
   mainProductImage.src =
@@ -298,26 +331,81 @@ function showImage(index) {
 }
 
 /**
+ * Otevře aktuální fotografii přes celou obrazovku.
+ */
+function openFullscreenImage() {
+  if (!activeProduct) {
+    return;
+  }
+
+  showFullscreenImage(activeImageIndex);
+
+  fullscreenImageViewer.classList.add("is-open");
+  fullscreenImageViewer.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+}
+
+/**
+ * Zobrazí vybranou fotografii ve fullscreen zobrazení.
+ */
+function showFullscreenImage(index) {
+  if (!activeProduct) {
+    return;
+  }
+
+  const imageCount = activeProduct.fullImages.length;
+
+  activeImageIndex =
+    (index + imageCount) % imageCount;
+
+  fullscreenImage.src =
+    activeProduct.fullImages[activeImageIndex];
+
+  fullscreenImage.alt =
+    `${activeProduct.name}, fotografie ${activeImageIndex + 1}`;
+}
+
+/**
+ * Zavře fullscreen zobrazení.
+ */
+function closeFullscreenImage() {
+  closeFullscreenImageButton.blur();
+
+  fullscreenImageViewer.classList.remove("is-open");
+  fullscreenImageViewer.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+}
+
+/**
  * Zavře detail produktu.
  */
 function closeProductModal() {
   closeProductModalButton.blur();
 
+  if (
+    fullscreenImageViewer.classList.contains("is-open")
+  ) {
+    closeFullscreenImage();
+  }
+
   productModal.classList.remove("is-open");
   productModal.setAttribute("aria-hidden", "true");
   document.body.classList.remove("modal-open");
+
+  mainProductImage.removeAttribute("src");
+  mainProductImage.alt = "";
 
   activeProduct = null;
   activeImageIndex = 0;
 }
 
-closeProductModalButton.addEventListener(
-  "click",
-  closeProductModal
-);
-const categoryButtons =
-  document.querySelectorAll(".category-button");
-
+/**
+ * Filtrování produktů podle kategorií.
+ */
 categoryButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const selectedCategory = button.dataset.category;
@@ -336,14 +424,41 @@ categoryButtons.forEach((button) => {
 
     const filteredProducts = allProducts.filter(
       (product) =>
-        product.category
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "") === selectedCategory
+        normalizeCategory(product.category) ===
+        selectedCategory
     );
 
     renderProductCards(filteredProducts);
   });
 });
+
+openFullscreenImageButton.addEventListener(
+  "click",
+  openFullscreenImage
+);
+
+closeFullscreenImageButton.addEventListener(
+  "click",
+  closeFullscreenImage
+);
+
+previousFullscreenImageButton.addEventListener(
+  "click",
+  () => {
+    showFullscreenImage(activeImageIndex - 1);
+  }
+);
+
+nextFullscreenImageButton.addEventListener(
+  "click",
+  () => {
+    showFullscreenImage(activeImageIndex + 1);
+  }
+);
+
+closeProductModalButton.addEventListener(
+  "click",
+  closeProductModal
+);
 
 loadProducts();
