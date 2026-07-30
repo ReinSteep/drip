@@ -1,1 +1,427 @@
+:root {
+  --background: #1b1e23;
+  --text: #ffffff;
+  --secondary-text: #c7c9cc;
+  --border: #555c66;
+  --border-hover: #858c96;
+  --sold: #e05252;
+  --overlay: rgba(10, 12, 15, 0.86);
+}
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: "Tenor Sans", sans-serif;
+  background: var(--background);
+  color: var(--text);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+}
+
+button {
+  font: inherit;
+}
+
+/* Úvodní stránka */
+
+.catalogue {
+  width: min(1500px, calc(100% - 64px));
+  margin: 0 auto;
+  padding: 52px 0 80px;
+}
+
+.catalogue-header {
+  margin-bottom: 48px;
+}
+
+.catalogue-header h1 {
+  margin: 0 0 28px;
+  font-size: clamp(1.7rem, 3vw, 2.8rem);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.category-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 30px;
+}
+
+.category-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--secondary-text);
+  cursor: pointer;
+  transition:
+    color 200ms ease,
+    opacity 200ms ease;
+}
+
+.category-button:hover,
+.category-button:focus-visible,
+.category-button.active {
+  color: var(--text);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 28px 22px;
+}
+
+/* Karta produktu */
+
+.product-card {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  aspect-ratio: 4 / 5;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.product-card:hover,
+.product-card:focus-visible {
+  z-index: 1;
+  transform: scale(1.025);
+  border-color: var(--border-hover);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+}
+
+.product-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-card.is-unavailable img {
+  filter: grayscale(1) brightness(0.48);
+}
+
+.product-card-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--text);
+  font-size: 1.2rem;
+  letter-spacing: 0.14em;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.product-card.is-unavailable:hover .product-card-status,
+.product-card.is-unavailable:focus-visible .product-card-status {
+  opacity: 1;
+}
+
+/* Detail položky */
+
+.product-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background: var(--overlay);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 240ms ease,
+    visibility 240ms ease;
+}
+
+.product-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.product-modal-panel {
+  width: min(1180px, 100%);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding: 28px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  transform: scale(0.96);
+  transition: transform 240ms ease;
+}
+
+.product-modal.is-open .product-modal-panel {
+  transform: scale(1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.close-button {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.product-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(260px, 0.8fr);
+  gap: 46px;
+}
+
+.main-image-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.main-image {
+  display: block;
+  width: 100%;
+  max-height: 67vh;
+  object-fit: contain;
+  background: var(--background);
+}
+
+.thumbnail-list {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+  overflow-x: auto;
+}
+
+.thumbnail-button {
+  flex: 0 0 82px;
+  width: 82px;
+  height: 102px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+}
+
+.thumbnail-button.active,
+.thumbnail-button:hover {
+  border-color: var(--text);
+}
+
+.thumbnail-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-information h3 {
+  margin: 0 0 34px;
+  font-size: clamp(1.5rem, 2.4vw, 2.3rem);
+  font-weight: 400;
+}
+
+.product-information p {
+  margin: 0 0 18px;
+  line-height: 1.6;
+}
+
+.product-information strong {
+  font-weight: 400;
+}
+
+.product-description {
+  margin-top: 34px;
+}
+
+.product-description p {
+  color: var(--secondary-text);
+}
+
+.product-price {
+  margin-top: 48px !important;
+  font-size: 1.55rem;
+}
+
+.product-price.is-unavailable {
+  color: var(--sold);
+}
+
+/* Fotografie přes celou obrazovku */
+
+.fullscreen-image-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 40px 76px;
+  background: rgba(0, 0, 0, 0.96);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 200ms ease,
+    visibility 200ms ease;
+}
+
+.fullscreen-image-viewer.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.fullscreen-image-viewer img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 80px);
+  object-fit: contain;
+}
+
+.fullscreen-close-button {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+}
+
+.image-navigation {
+  position: absolute;
+  top: 50%;
+  width: 48px;
+  height: 64px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 3rem;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.previous-image {
+  left: 14px;
+}
+
+.next-image {
+  right: 14px;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Tablet */
+
+@media (max-width: 1100px) {
+  .product-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .product-detail {
+    grid-template-columns: minmax(0, 1.35fr) minmax(240px, 0.8fr);
+    gap: 30px;
+  }
+}
+
+/* Mobil */
+
+@media (max-width: 700px) {
+  .catalogue {
+    width: min(100% - 28px, 1500px);
+    padding: 30px 0 50px;
+  }
+
+  .catalogue-header {
+    margin-bottom: 30px;
+  }
+
+  .category-menu {
+    flex-wrap: nowrap;
+    gap: 24px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .category-button {
+    flex: 0 0 auto;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+  }
+
+  .product-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .product-modal {
+    display: block;
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  .product-modal-panel {
+    width: 100%;
+    min-height: 100vh;
+    max-height: none;
+    padding: 20px 14px 42px;
+    border: 0;
+  }
+
+  .product-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .main-image {
+    max-height: none;
+  }
+
+  .thumbnail-button {
+    flex-basis: 68px;
+    width: 68px;
+    height: 85px;
+  }
+
+  .product-information h3 {
+    margin-bottom: 28px;
+  }
+
+  .fullscreen-image-viewer {
+    padding: 52px 12px 40px;
+  }
+
+  .image-navigation {
+    display: none;
+  }
+}
