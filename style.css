@@ -52,10 +52,13 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 10px 30px;
+  padding: 0;
+  margin: 0;
 }
 
 .category-button {
   padding: 0;
+  margin: 0;
   border: 0;
   background: transparent;
   color: var(--secondary-text);
