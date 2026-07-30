@@ -197,17 +197,25 @@ button {
   padding-top: 32px;
 }
 
+.product-gallery {
+  display: flex;
+  flex-direction: column;
+  height: 78vh;
+}
+
 .main-image-button {
-  display: block;
+  display: grid;
+  place-items: center;
+
   width: 100%;
+  flex: 1;
+  min-height: 0;
+
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--border);
   background: transparent;
   cursor: zoom-in;
-  height: 67vh;
-  display: grid;
-  place-items: center;
 }
 
 .main-image {
@@ -223,6 +231,7 @@ button {
   gap: 12px;
   margin-top: 14px;
   overflow-x: auto;
+  flex-shrink: 0;
 }
 
 .thumbnail-button {
