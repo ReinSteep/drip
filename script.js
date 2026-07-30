@@ -256,6 +256,8 @@ function showImage(index) {
  * Zavře detail produktu.
  */
 function closeProductModal() {
+  closeProductModalButton.blur();
+  
   productModal.classList.remove("is-open");
   productModal.setAttribute("aria-hidden", "true");
   document.body.classList.remove("modal-open");
