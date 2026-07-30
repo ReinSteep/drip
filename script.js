@@ -461,4 +461,29 @@ closeProductModalButton.addEventListener(
   closeProductModal
 );
 
+productModal.addEventListener("click", (event) => {
+  if (event.target === productModal) {
+    closeProductModal();
+  }
+});
+
+fullscreenImageViewer.addEventListener(
+  "click",
+  (event) => {
+    if (event.target === fullscreenImageViewer) {
+      closeFullscreenImage();
+    }
+  }
+);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    if (fullscreenImageViewer.classList.contains("is-open")) {
+      closeFullscreenImage();
+    } else if (productModal.classList.contains("is-open")) {
+      closeProductModal();
+    }
+  }
+});
+
 loadProducts();
