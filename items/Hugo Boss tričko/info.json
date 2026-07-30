@@ -1,0 +1,10 @@
+{
+  "name": "Hugo Boss tričko",
+  "brand": "Hugo Boss",
+  "size": "M+",
+  "description": "Už ani nevím, kde jsem k němu přišel. Ale téměř jsem jej nenosil. Buď Boss, potěš se.",
+  "price": 300,
+  "category": "Triko",
+  "available": true,
+  "images": 3
+}
