@@ -205,12 +205,15 @@ button {
   border: 1px solid var(--border);
   background: transparent;
   cursor: zoom-in;
+  height: 67vh;
+  display: grid;
+  place-items: center;
 }
 
 .main-image {
   display: block;
   width: 100%;
-  max-height: 67vh;
+  height: 100%;
   object-fit: contain;
   background: var(--background);
 }
@@ -416,8 +419,9 @@ body.modal-open {
     gap: 32px;
   }
 
-  .main-image {
-    max-height: none;
+  .main-image-button {
+  height: auto;
+  aspect-ratio: 4 / 5;
   }
 
   .thumbnail-button {
