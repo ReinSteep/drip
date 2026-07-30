@@ -11,6 +11,8 @@ const thumbnailList =
 let activeProduct = null;
 let activeImageIndex = 0;
 
+const preloadedProducts = new Set();
+
 /**
  * Vytvoří cestu ke složce produktu.
  */
@@ -38,6 +40,22 @@ function createImagePaths(folder, imageCount) {
     fullImages,
     thumbnails
   };
+}
+
+/**
+ * Předem načte velké fotografie produktu do cache prohlížeče.
+ */
+function preloadProductImages(product) {
+  if (preloadedProducts.has(product.folder)) {
+    return;
+  }
+
+  product.fullImages.forEach((imagePath) => {
+    const image = new Image();
+    image.src = imagePath;
+  });
+
+  preloadedProducts.add(product.folder);
 }
 
 /**
@@ -136,6 +154,23 @@ function renderProductCards(products) {
       productCard.appendChild(status);
     }
 
+    // Velké fotografie se začnou načítat už při najetí na kartu.
+    productCard.addEventListener(
+      "mouseenter",
+      () => {
+        preloadProductImages(product);
+      },
+      { once: true }
+    );
+
+    productCard.addEventListener(
+      "focus",
+      () => {
+        preloadProductImages(product);
+      },
+      { once: true }
+    );
+
     productCard.addEventListener("click", () => {
       openProductModal(product);
     });
@@ -150,6 +185,8 @@ function renderProductCards(products) {
 function openProductModal(product) {
   activeProduct = product;
   activeImageIndex = 0;
+
+  preloadProductImages(product);
 
   document.querySelector("#product-name").textContent =
     product.name;
@@ -220,6 +257,12 @@ function createThumbnails() {
 
       thumbnailButton.appendChild(thumbnailImage);
 
+      // Na počítači stačí na miniaturu najet kurzorem.
+      thumbnailButton.addEventListener("mouseenter", () => {
+        showImage(index);
+      });
+
+      // Kliknutí zůstává pro mobil a klávesové ovládání.
       thumbnailButton.addEventListener("click", () => {
         showImage(index);
       });
@@ -257,7 +300,7 @@ function showImage(index) {
  */
 function closeProductModal() {
   closeProductModalButton.blur();
-  
+
   productModal.classList.remove("is-open");
   productModal.setAttribute("aria-hidden", "true");
   document.body.classList.remove("modal-open");
