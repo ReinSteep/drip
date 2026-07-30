@@ -1,21 +1,165 @@
 <!DOCTYPE html>
 <html lang="cs">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DRIP – CHCEŠ?</title>
 
-    <title>Drip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Tenor+Sans&display=swap"
+    rel="stylesheet"
+  >
 
-    <link rel="stylesheet" href="style.css">
-
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+  <main class="catalogue">
+    <header class="catalogue-header">
+      <h1>DRIP – CHCEŠ?</h1>
 
-    <script src="script.js"></script>
+      <nav class="category-menu" aria-label="Kategorie">
+        <button class="category-button active" data-category="all">
+          Vše
+        </button>
 
+        <button class="category-button" data-category="trika">
+          Trika
+        </button>
+
+        <button class="category-button" data-category="kosile">
+          Košile
+        </button>
+
+        <button class="category-button" data-category="mikiny">
+          Mikiny
+        </button>
+
+        <button class="category-button" data-category="kalhoty">
+          Kalhoty
+        </button>
+      </nav>
+    </header>
+
+    <section
+      class="product-grid"
+      id="product-grid"
+      aria-label="Nabízené položky"
+    >
+      <!-- Karty produktů sem později vloží JavaScript. -->
+    </section>
+  </main>
+
+  <section
+    class="product-modal"
+    id="product-modal"
+    aria-hidden="true"
+    aria-label="Detail položky"
+  >
+    <div class="product-modal-panel">
+      <header class="modal-header">
+        <h2>DRIP – CHCEŠ?</h2>
+
+        <button
+          class="close-button"
+          id="close-product-modal"
+          type="button"
+          aria-label="Zavřít detail"
+        >
+          ×
+        </button>
+      </header>
+
+      <div class="product-detail">
+        <div class="product-gallery">
+          <button
+            class="main-image-button"
+            id="open-fullscreen-image"
+            type="button"
+            aria-label="Zvětšit fotografii"
+          >
+            <img
+              class="main-image"
+              id="main-product-image"
+              src=""
+              alt=""
+            >
+          </button>
+
+          <div
+            class="thumbnail-list"
+            id="thumbnail-list"
+            aria-label="Další fotografie"
+          ></div>
+        </div>
+
+        <div class="product-information">
+          <h3 id="product-name"></h3>
+
+          <p>
+            <strong>Velikost:</strong>
+            <span id="product-size"></span>
+          </p>
+
+          <p>
+            <strong>Značka:</strong>
+            <span id="product-brand"></span>
+          </p>
+
+          <div class="product-description">
+            <strong>Popis:</strong>
+            <p id="product-description"></p>
+          </div>
+
+          <p class="product-price" id="product-price"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="fullscreen-image-viewer"
+    id="fullscreen-image-viewer"
+    aria-hidden="true"
+    aria-label="Zvětšená fotografie"
+  >
+    <button
+      class="close-button fullscreen-close-button"
+      id="close-fullscreen-image"
+      type="button"
+      aria-label="Zavřít fotografii"
+    >
+      ×
+    </button>
+
+    <button
+      class="image-navigation previous-image"
+      id="previous-fullscreen-image"
+      type="button"
+      aria-label="Předchozí fotografie"
+    >
+      ‹
+    </button>
+
+    <img
+      id="fullscreen-image"
+      src=""
+      alt=""
+    >
+
+    <button
+      class="image-navigation next-image"
+      id="next-fullscreen-image"
+      type="button"
+      aria-label="Další fotografie"
+    >
+      ›
+    </button>
+  </section>
+
+  <script src="script.js"></script>
 </body>
-
 </html>
