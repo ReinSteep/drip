@@ -384,7 +384,9 @@ function closeFullscreenImage() {
  * Zavře detail produktu.
  */
 function closeProductModal() {
-  closeProductModalButton.blur();
+  productModal.classList.remove("is-open");
+  productModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
 
   if (
     fullscreenImageViewer.classList.contains("is-open")
@@ -392,9 +394,9 @@ function closeProductModal() {
     closeFullscreenImage();
   }
 
-  productModal.classList.remove("is-open");
-  productModal.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("modal-open");
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
 
   mainProductImage.removeAttribute("src");
   mainProductImage.alt = "";
