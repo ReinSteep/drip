@@ -10,6 +10,7 @@ const thumbnailList =
 
 let activeProduct = null;
 let activeImageIndex = 0;
+let allProducts = [];
 
 const preloadedProducts = new Set();
 
@@ -99,7 +100,8 @@ async function loadProducts() {
       })
     );
 
-    renderProductCards(products);
+    allProducts = products;
+    renderProductCards(allProducts);
   } catch (error) {
     console.error(error);
 
@@ -313,5 +315,35 @@ closeProductModalButton.addEventListener(
   "click",
   closeProductModal
 );
+const categoryButtons =
+  document.querySelectorAll(".category-button");
+
+categoryButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const selectedCategory = button.dataset.category;
+
+    categoryButtons.forEach((categoryButton) => {
+      categoryButton.classList.toggle(
+        "active",
+        categoryButton === button
+      );
+    });
+
+    if (selectedCategory === "all") {
+      renderProductCards(allProducts);
+      return;
+    }
+
+    const filteredProducts = allProducts.filter(
+      (product) =>
+        product.category
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "") === selectedCategory
+    );
+
+    renderProductCards(filteredProducts);
+  });
+});
 
 loadProducts();
