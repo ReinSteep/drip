@@ -3,9 +3,10 @@ async function loadProductList() {
   const productList = await response.json();
 
   const firstProductFolder = productList[0].folder;
+  const encodedFolder = encodeURIComponent(firstProductFolder);
 
   const productResponse = await fetch(
-    `items/${encodeURIComponent(firstProductFolder)}/info.json`
+    `items/${encodedFolder}/info.json`
   );
 
   const productInfo = await productResponse.json();
@@ -18,6 +19,16 @@ async function loadProductList() {
   const mainProductImage = document.querySelector("#main-product-image");
   const thumbnailList = document.querySelector("#thumbnail-list");
 
+  const fullImagePaths = Array.from(
+    { length: productInfo.images },
+    (_, index) => `items/${encodedFolder}/${index + 1}.jpg`
+  );
+
+  const thumbnailImagePaths = Array.from(
+    { length: productInfo.images },
+    (_, index) => `items/${encodedFolder}/${index + 1}-thumb.jpg`
+  );
+
   const productCard = document.createElement("button");
   productCard.type = "button";
   productCard.className = "product-card";
@@ -27,20 +38,22 @@ async function loadProductList() {
   );
 
   const productImage = document.createElement("img");
-  productImage.src =
-    `items/${encodeURIComponent(firstProductFolder)}/1.jpg`;
+  productImage.src = thumbnailImagePaths[0];
   productImage.alt = productInfo.name;
+
+  // Pokud náhled neexistuje, použije se automaticky velká fotografie.
+  productImage.addEventListener(
+    "error",
+    () => {
+      productImage.src = fullImagePaths[0];
+    },
+    { once: true }
+  );
 
   productCard.appendChild(productImage);
 
-  const imagePaths = Array.from(
-    { length: productInfo.images },
-    (_, index) =>
-      `items/${encodeURIComponent(firstProductFolder)}/${index + 1}.jpg`
-  );
-
   function showImage(index) {
-    mainProductImage.src = imagePaths[index];
+    mainProductImage.src = fullImagePaths[index];
     mainProductImage.alt =
       `${productInfo.name}, fotografie ${index + 1}`;
 
@@ -55,7 +68,7 @@ async function loadProductList() {
   function createThumbnails() {
     thumbnailList.innerHTML = "";
 
-    imagePaths.forEach((imagePath, index) => {
+    thumbnailImagePaths.forEach((thumbnailPath, index) => {
       const thumbnailButton = document.createElement("button");
       thumbnailButton.type = "button";
       thumbnailButton.className = "thumbnail-button";
@@ -65,9 +78,19 @@ async function loadProductList() {
       );
 
       const thumbnailImage = document.createElement("img");
-      thumbnailImage.src = imagePath;
+      thumbnailImage.src = thumbnailPath;
       thumbnailImage.alt =
         `${productInfo.name}, fotografie ${index + 1}`;
+      thumbnailImage.loading = "lazy";
+
+      // Pokud miniatura neexistuje, použije se velká fotografie.
+      thumbnailImage.addEventListener(
+        "error",
+        () => {
+          thumbnailImage.src = fullImagePaths[index];
+        },
+        { once: true }
+      );
 
       thumbnailButton.appendChild(thumbnailImage);
 
